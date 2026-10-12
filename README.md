@@ -262,6 +262,41 @@ The Grafana service account token lives in gcx's own config
 7. Point Uptime Kuma (run centrally, across all clients) at this stack's exposed endpoints.
 8. Set a real retention policy (`INFLUXDB_INIT_RETENTION`) matching what the client needs and what your storage budget allows, then `make sync-influx` and commit.
 
+## Troubleshooting
+
+**`docker compose up -d` (or `--build`) fails during the Node-RED image build with `npm ERR! code EAI_AGAIN` / `getaddrinfo EAI_AGAIN registry.npmjs.org`**
+
+This is a DNS resolution failure inside the Docker build environment, not an
+npm or Node-RED problem — the build container can't resolve
+`registry.npmjs.org` (or any hostname) to an IP address at all, so the
+`npm install` step in `node-red/Dockerfile` fails before it can fetch
+`node-red-contrib-influxdb`.
+
+**Fix:** point the Docker daemon at a known-good public DNS resolver
+explicitly, rather than relying on whatever it auto-detected:
+
+```bash
+sudo tee /etc/docker/daemon.json <<EOF
+{
+  "dns": ["8.8.8.8"]
+}
+EOF
+sudo systemctl restart docker
+```
+
+Then retry:
+
+```bash
+docker compose up -d --build
+```
+
+If you want to sanity-check the fix took effect before rebuilding the whole
+stack, run a throwaway container against the same lookup that was failing:
+
+```bash
+docker run --rm busybox nslookup registry.npmjs.org
+```
+
 ## Notes
 
 - **Pin the InfluxDB image to 2.x**: the Docker `latest` tag for InfluxDB now points to InfluxDB 3, which doesn't support Flux. Keep `docker-compose.yml` on a specific 2.x tag (e.g. `influxdb:2.7`).
