@@ -3,9 +3,9 @@
 Dockerized Node-RED -> InfluxDB -> Grafana stack for pulling machine/process
 data off the plant floor and into dashboards clients can actually use.
 
-This is a **template repo** — clone it per client (`git clone` into a new
-private repo, or use it as a GitHub template), customize the input node and
-the business logic in `node-red/data/flows.json`, and ship it. See
+This is a **template repo**. It should be cloned per client (`git clone` into a new
+ repo). Then, you can customize the input nodes and
+ logic in `node-red/data/flows.json`, and ship it. See
 `docs/ARCHITECTURE.md` for how the pipeline is structured and
 `docs/ARCHITECTURE.md#going-from-simulator-to-a-real-input` for wiring up a
 client's actual equipment.
@@ -164,8 +164,8 @@ and hit Deploy.
 syncs to the repo and is not tracked in git. It lives only in the named
 volume, decrypted using `NODE_RED_CREDENTIAL_SECRET` from `.env`. Re-enter
 credentials (PLC auth, tokens, etc.) through the Node-RED editor on each new
-deployment. If you need a recovery copy, `make backup` captures it as part
-of the encrypted-at-rest backup — outside of git entirely.
+deployment. If you need a recovery copy, `make backup` captures it in a local 
+backup (which is also not tracked in git).
 
 ### Grafana: dashboards via gcx
 
